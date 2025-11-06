@@ -4,16 +4,22 @@ tput civis
 
 selected_index=0
 writeprotect=$(futility flash --wp-status | grep disabled)
-
-
+factoryserial=$(vpd -i RO_VPD -g "factory_serial_number")
+if [[ "$factoryserial" == "" ]]; then
+factorysaved="1"
+fi
 
 # TODO:
 # * Add factory backup stuff (done)
 # * Migrate to RW_VPD (done)
-# * finish the empty options (4/6 done)
+# * finish the empty options (5/7 done)
 
 menu_reset() {
-options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info" "Exit")
+if [[ "$factorysaved" == "1" ]]; then
+options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info (WIP)" "Backup Factory Enrollment Info (Recommended)" "Exit")
+else
+options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info (WIP)" "Exit")
+fi
 num_options=${#options[@]}
 }
 menu_reset
@@ -88,20 +94,60 @@ mkdir -p /tmp/aurora/vpd
 vpd -i RO_VPD -l > /tmp/aurora/vpd/RO.vpd
 vpd -i RW_VPD -l > /tmp/aurora/vpd/RW.vpd
 else
-echo -e "Where would you like to backup your VPD to? (makes a new directory 'vpd/' underneath the selected one)"
+echo -e "Where would you like to backup your VPD to? (makes a new directory '/vpd/' underneath the selected one)"
 echo -ne "Directory: "
 read sdirec
 sleep 0.67
 if [[ -d "$sdirec" ]]; then
+vpd -i RO_VPD -l
+sleep 0.67
+vpd -i RW_VPD -l
+sleep 0.67
 mkdir $sdirec/vpd
 vpd -i RO_VPD -l > $sdirec/vpd/RO.vpd
 vpd -i RW_VPD -l > $sdirec/vpd/RW.vpd
+echo -e "Backup Complete, Validating..."
+if [[ -f "$sdirec/vpd/RO.vpd" ]]; then
+echo -e "Validated!"
+else
+echo ""
+echo -e "Validation failed, check if you're in the correct environment, or if the directory is writeable."
+sleep 4
+echo -e "Returning to menu..."
+sleep 1.2
+menu_reset
+full_menu
+fi
 else
 echo -e "Not a valid directory! Returning to menu..."
 sleep 1.2
 menu_reset
 full_menu
 fi
+fi
+fi
+if [[ "${options[$selected_index]}" == "Backup Factory Enrollment Info (Recommended)" ]]; then
+menu_logo
+echo -e "Backup Factory Enrollment Info"
+echo ""
+echo -e "This is irreversible!!\n\nThis will save these two keys: 'factory_serial_number' as '$(vpd -i RO_VPD -g "serial_number")' and 'factory_stable_device_secret' as '$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")'"
+
+read -r -n 1 -p "Press Y to continue, or press any key to exit..." yesnts
+
+if [[ "$yesnts" == "y" ]]; then
+echo -e "\n\nSaving factory enrollment info to RO_VPD..."
+sleep 0.67
+vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+sleep 0.67
+vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
+sleep 0.67
+echo -e "Enrollment info backed up under 'factory_serial_number' and 'factory_stable_device_secret'!\nReturning to menu..."
+sleep 4
+menu_reset
+full_menu
+else
+menu_reset
+full_menu
 fi
 fi
 if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
