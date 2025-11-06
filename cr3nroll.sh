@@ -8,8 +8,9 @@ writeprotect=$(futility flash --wp-status | grep disabled)
 
 
 # TODO:
-# * Add factory backup stuff
+# * Add factory backup stuff (done)
 # * Migrate to RW_VPD (done)
+# * finish the empty options (4/6 done)
 
 menu_reset() {
 options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info" "Exit")
@@ -212,7 +213,7 @@ if [[ "${options[$selected_index]}" == "Load saved Enrollment Keys" ]]; then
     echo -e "| Cr3nroll By OSmium (crosmium on Github) |"
     echo ""
     echo ""
-    echo -e "\nCurrently selected serial number: '$(vpd -i RO_VPD -g "serial_number")'"
+    echo -e "\nCurrently active serial number: '$(vpd -i RO_VPD -g "serial_number")'"
     echo ""
     
 sleep 1
@@ -236,12 +237,28 @@ sleep 1
                     ;;
                 *)
                     echo -e "(Selected '$key')"
-                    echo -e "\nWarning: Setting your enrollment keys is highly destructive, I recommend saving your factory ones before you select any keys.\n"
+                    echo -e "\nWarning: Setting your enrollment keys is highly destructive, I recommend saving your factory ones before you select any keys.\n\n(This script will attempt to back them up automatically if you haven't, but I still highly recommend doing it manually)\n"
                     read -r -n 1 -p "Press Y to continue, or press any key to exit..." confirmation
                     if [[ "$confirmation" != "y" ]]; then
                     menu_reset
                     full_menu
                     fi
+                    clear
+                    menu_logo
+                    
+                    if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
+                    vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
+                    echo -e "if you see this that means that you don't have your factory SDS (stable_device_secret) backed up, It will be backed up in the next step."
+                    else
+                    echo -e "Found valid factory entry (SDS)!"
+                    fi
+                    if [[ "$(vpd -i RO_VPD -g "factory_serial_number")" == "" ]]; then
+                    vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+                    echo -e "if you see this that means that you don't have your factory SN backed up, It will be backed up in the next step."
+                    else
+                    echo -e "Found valid factory entry (SN)!"
+                    fi
+                    sleep 3.4
                      overrideSet() {
         clear
     echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
@@ -262,10 +279,19 @@ sleep 1
             echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
     echo -e "Writing keys..."
     sleep 1.7
+    if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
+                    vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
+                    echo -e "Wrote factory info! (SDS)"
+                    fi
+                    if [[ "$(vpd -i RO_VPD -g "factory_serial_number")" == "" ]]; then
+                    vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+                    echo -e "Wrote factory info! (SN)"
+                    fi
+    sleep 2
     vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_'$key'_serial_number")"
     vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_'$key'_stable_device_secret")"
     echo -e "Keys written to VPD!"
-    sleep 3.4
+    sleep 4
     menu_reset
     full_menu
 }
