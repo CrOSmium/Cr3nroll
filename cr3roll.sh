@@ -5,6 +5,12 @@ tput civis
 selected_index=0
 writeprotect=$(futility flash --wp-status | grep disabled)
 
+
+
+# TODO:
+# * Add factory backup stuff
+# * Migrate to RW_VPD (done)
+
 menu_reset() {
 options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info" "Edit Enrollment list" "Backup Enrollment Info (Does not require WP OFF)" "Restore Enrollment Info" "Exit")
 num_options=${#options[@]}
@@ -55,10 +61,10 @@ if [[ "${options[$selected_index]}" == "Save Current Enrollment Keys" ]]; then
     echo -ne "(Y/N): "
     read YESNT
     if [[ ${YESNT,,} = "y" ]]; then
-    echo -e "Saving keys (to RO_VPD)..."
-    vpd -i RO_VPD -s "saved_"$KEYNAME"_stable_device_secret"="$STABLEDEV"
+    echo -e "Saving keys (to RW_VPD)..."
+    vpd -i RW_VPD -s "saved_"$KEYNAME"_stable_device_secret"="$STABLEDEV"
     sleep 0.3
-    vpd -i RO_VPD -s "saved_"$KEYNAME"_serial_number"="$SERIAL"
+    vpd -i RW_VPD -s "saved_"$KEYNAME"_serial_number"="$SERIAL"
     sleep 0.3
     echo -e "Keys written to VPD! (if WP was enabled)"
     sleep 0.8
@@ -128,9 +134,9 @@ if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
         sleep 0.4
         echo -e "Saving new stable_device_secret and serial_number('$KEYNAME') as '$SKNAME'..."
         sleep 0.67
-        vpd -i RO_VPD -s "saved_"$SKNAME"_stable_device_secret"="$gensdev"
+        vpd -i RW_VPD -s "saved_"$SKNAME"_stable_device_secret"="$gensdev"
         sleep 0.4
-        vpd -i RO_VPD -s "saved_"$SKNAME"_serial_number"="$KEYNAME"
+        vpd -i RW_VPD -s "saved_"$SKNAME"_serial_number"="$KEYNAME"
         sleep 1
         echo -e "Finished!"
         sleep 3
@@ -152,7 +158,7 @@ if [[ "${options[$selected_index]}" == "Load saved Enrollment Keys" ]]; then
     menu_logo
     echo -e "Getting keys..."
     sleep 2
-    mapfile -t KEYNAMES < <(vpd -i RO_VPD -l | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
+    mapfile -t KEYNAMES < <(vpd -i RW_VPD -l | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
 # mapfile -t KEYNAMES < <(echo -e "saved_test" "saved_test_serial" | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
     clear
     echo -e " █████                              █████                                               █████                                              
@@ -204,7 +210,7 @@ sleep 1
                     ;;
                 *)
                     echo -e "(Selected '$key')"
-                    echo -e "\nWarning: Setting your enrollment keys can be highly destructive, I recommend saving your factory ones before you select any keys.\n"
+                    echo -e "\nWarning: Setting your enrollment keys is highly destructive, I recommend saving your factory ones before you select any keys.\n"
                     read -r -n 1 -p "Press Y to continue, or press any key to exit..." confirmation
                     if [[ "$confirmation" != "y" ]]; then
                     menu_reset
@@ -230,8 +236,8 @@ sleep 1
             echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
     echo -e "Writing keys..."
     sleep 1.7
-    vpd -i RO_VPD -s "serial_number"="$(vpd -i RO_VPD -g "saved_'$key'_serial_number")"
-    vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RO_VPD -g "saved_'$key'_stable_device_secret")"
+    vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_'$key'_serial_number")"
+    vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_'$key'_stable_device_secret")"
     echo -e "Keys written to VPD!"
     sleep 3.4
     menu_reset
