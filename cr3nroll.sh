@@ -14,11 +14,21 @@ fi
 # * Migrate to RW_VPD (done)
 # * finish the empty options (5/7 done)
 
+
+
+# colors that i totally didn't steal from a previous project
+B='\033[1;36m' 
+G='\033[1;32m' 
+Y='\033[38;5;220m'
+R='\033[38;5;203m'
+N='\033[0m'    
+D='\033[1;90m'
+
 menu_reset() {
 if [[ "$factorysaved" == "1" ]]; then
-options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info (WIP)" "Backup Factory Enrollment Info (Recommended)" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list (WIP)" "${B}Backup Enrollment Info${N}" "Restore Enrollment Info (WIP)" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Exit")
 else
-options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info (WIP)" "Exit")
+options=("${B}Save Current Enrollment Keys${N}" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "Import Custom Enrollment Info (WIP)" "Edit Enrollment list (WIP)" "${B}Backup Enrollment Info${N}" "Restore Enrollment Info (WIP)" "Exit")
 fi
 num_options=${#options[@]}
 }
@@ -84,7 +94,7 @@ if [[ "${options[$selected_index]}" == "Save Current Enrollment Keys" ]]; then
     menu_reset
     full_menu
 fi
-if [[ "${options[$selected_index]}" == "Backup Enrollment Info" ]]; then
+if [[ "${options[$selected_index]}" == "${B}Backup Enrollment Info${N}" ]]; then
 menu_logo
 echo -e "Backup Enrollment Info"
 echo ""
@@ -126,11 +136,11 @@ full_menu
 fi
 fi
 fi
-if [[ "${options[$selected_index]}" == "Backup Factory Enrollment Info (Recommended)" ]]; then
+if [[ "${options[$selected_index]}" == "${G}Backup Factory Enrollment Info (Recommended)${N}" ]]; then
 menu_logo
 echo -e "Backup Factory Enrollment Info"
 echo ""
-echo -e "This is irreversible!!\n\nThis will save these two keys: 'factory_serial_number' as '$(vpd -i RO_VPD -g "serial_number")' and 'factory_stable_device_secret' as '$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")'"
+echo -e "${R}This is irreversible!!${N}\n\n${G}This will save these two keys: 'factory_serial_number' as '$(vpd -i RO_VPD -g "serial_number")' and 'factory_stable_device_secret' as '$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")'${N}"
 
 read -r -n 1 -p "Press Y to continue, or press any key to exit..." yesnts
 
@@ -141,6 +151,7 @@ vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
 sleep 0.67
 vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
 sleep 0.67
+vpd -i RW_VPD -s "factory_backup"="2"
 echo -e "Enrollment info backed up under 'factory_serial_number' and 'factory_stable_device_secret'!\nReturning to menu..."
 sleep 4
 menu_reset
@@ -165,7 +176,7 @@ if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
     echo -e "Generated stable_device_secret: '$gensdev'"
     sleep 0.4
     echo -e "What do you want your serial number to be?"
-    currentsn=$(vpd -i RO_VPD -g serial_number)
+    currentsn=$(vpd -i RO_VPD -g "serial_number")
     echo -e "Your currently set one is: '$currentsn'"
     echo -e "Warning: Setting your serial number or Keyname blank WILL corrupt your enrollment keys!!"
     KEYNAMESN() {
@@ -226,7 +237,7 @@ if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
     menu_reset
     full_menu
 fi
-if [[ "${options[$selected_index]}" == "Load saved Enrollment Keys" ]]; then
+if [[ "${options[$selected_index]}" == "${R}Load saved Enrollment Keys${N}" ]]; then
     clear
     menu_logo
     echo -e "Getting keys..."
@@ -283,9 +294,9 @@ sleep 1
                     ;;
                 *)
                     echo -e "(Selected '$key')"
-                    echo -e "\nWarning: Setting your enrollment keys is highly destructive, I recommend saving your factory ones before you select any keys.\n\n(This script will attempt to back them up automatically if you haven't, but I still highly recommend doing it manually)\n"
-                    read -r -n 1 -p "Press Y to continue, or press any key to exit..." confirmation
-                    if [[ "$confirmation" != "y" ]]; then
+                    echo -e "\n${R}Warning: Setting your enrollment keys is highly destructive, I recommend saving your factory ones before you select any keys.${N}\n\n(This script will attempt to back them up automatically if you haven't, but I still highly recommend doing it manually)\n"
+                    read -r -n 2 -s -p "Double click Y to continue, or hold any other key to exit..." confirmation
+                    if [[ "$confirmation" != "yy" ]]; then
                     menu_reset
                     full_menu
                     fi
@@ -307,33 +318,43 @@ sleep 1
                     sleep 3.4
                      overrideSet() {
         clear
-    echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
+    echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
     sleep 1.5
     clear
-           echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
+           echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
     echo -e "Writing in: 3"
     sleep 1.5
         clear
-            echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
+            echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
     echo -e "Writing in: 2"
     sleep 1.5
         clear
-           echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
+           echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
     echo -e "Writing in: 1"
     sleep 2
         clear
-            echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. THIS IS HIGHLY DESTRUCTIVE!!"
-    echo -e "Writing keys..."
+        
+            echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
+    echo -e "${R}Writing keys...${N}"
+    sleep 0.8
+            clear
+            menu_logo
+    echo -e "Checking and backing up factory info..."
     sleep 1.7
+    if [[ "$(vpd -i RW_VPD -g "factory_backup")" != "2" ]]; then
     if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
                     vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
+                    vpd -i RW_VPD -s "factory_backup"="$(($(vpd -i RW_VPD -g "factory_backup") + 1 ))"
                     echo -e "Wrote factory info! (SDS)"
                     fi
                     if [[ "$(vpd -i RO_VPD -g "factory_serial_number")" == "" ]]; then
                     vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+                    vpd -i RW_VPD -s "factory_backup"="$(($(vpd -i RW_VPD -g "factory_backup") + 1 ))"
                     echo -e "Wrote factory info! (SN)"
                     fi
+                    fi
     sleep 2
+    echo -e "Writing keys to RO_VPD..."
     vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_'$key'_serial_number")"
     vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_'$key'_stable_device_secret")"
     echo -e "Keys written to VPD!"
@@ -401,16 +422,16 @@ tput sc
 
 
 if [[ "$writeprotect" == *"disabled"* ]]; then
-  echo -e "Write Protection Disabled, have fun! :D"
+  echo -e "You currently have Firware Write Protection set to ${R}(DISABLED)${N}, all features *should* work properly. Have fun :D"
   else
-  echo -e "This requires Firmware Write Protection to be disabled to work, please disable it!"
+  echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to change your current enrollment info until you disable it!\n\n(This appears if your Write Protection is set to ${G}(ENABLED)${N}, regardless of the WP range)"
 fi
 echo ""
 for i in "${!options[@]}"; do
         if [[ $i -eq $selected_index ]]; then
             echo -e "\e[7m > ${options[$i]} \e[0m"
         else
-            echo "   ${options[$i]}      "
+            echo -e "   ${options[$i]}      "
         fi
     done
 }
