@@ -12,7 +12,7 @@ writeprotect=$(futility flash --wp-status | grep disabled)
 # * Migrate to RW_VPD (done)
 
 menu_reset() {
-options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info" "Edit Enrollment list" "Backup Enrollment Info (Does not require WP OFF)" "Restore Enrollment Info" "Exit")
+options=("Save Current Enrollment Keys" "Load saved Enrollment Keys" "Generate new Enrollment Keys" "Import Custom Enrollment Info" "Edit Enrollment list" "Backup Enrollment Info" "Restore Enrollment Info" "Exit")
 num_options=${#options[@]}
 }
 menu_reset
@@ -76,6 +76,32 @@ if [[ "${options[$selected_index]}" == "Save Current Enrollment Keys" ]]; then
     sleep 0.4
     menu_reset
     full_menu
+fi
+if [[ "${options[$selected_index]}" == "Backup Enrollment Info" ]]; then
+menu_logo
+echo -e "Backup Enrollment Info"
+echo ""
+if [[ -d "/tmp/aurora" ]]; then
+echo -e "It looks like you're booted in Sh1mmer (via Aurora), automatically backing up VPD to '/tmp/aurora/vpd/RO.vpd' and '/tmp/aurora/vpd/RW.vpd'"
+mkdir -p /tmp/aurora/vpd
+vpd -i RO_VPD -l > /tmp/aurora/vpd/RO.vpd
+vpd -i RW_VPD -l > /tmp/aurora/vpd/RW.vpd
+else
+echo -e "Where would you like to backup your VPD to? (makes a new directory 'vpd/' underneath the selected one)"
+echo -ne "Directory: "
+read sdirec
+sleep 0.67
+if [[ -d "$sdirec" ]]; then
+mkdir $sdirec/vpd
+vpd -i RO_VPD -l > $sdirec/vpd/RO.vpd
+vpd -i RW_VPD -l > $sdirec/vpd/RW.vpd
+else
+echo -e "Not a valid directory! Returning to menu..."
+sleep 1.2
+menu_reset
+full_menu
+fi
+fi
 fi
 if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
     menu_logo
