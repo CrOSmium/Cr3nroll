@@ -3,7 +3,7 @@
 tput civis
 
 selected_index=0
-writeprotect=$(futility flash --wp-status | grep disabled)
+writeprotect=$(flashrom --wp-status | grep disabled)
 factoryserial=$(vpd -i RO_VPD -g "factory_serial_number")
 if [[ "$factoryserial" == "" ]]; then
 factorysaved="1"
