@@ -283,7 +283,7 @@ if [[ "${options[$selected_index]}" == "${R}Load saved Enrollment Keys${N}" ]]; 
     menu_logo
     echo -e "Getting keys..."
     sleep 2
-    mapfile -t KEYNAMES < <(vpd -i RW_VPD -l | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
+    mapfile -t KEYNAMES < <(vpd -i RW_VPD -l | grep '"saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
 # mapfile -t KEYNAMES < <(echo -e "saved_test" "saved_test_serial" | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
     clear
     echo -e " █████                              █████                                               █████                                              
@@ -320,7 +320,7 @@ sleep 1
    #     sleep 2
    #     menu_reset
    # else
-        options=("-- RETURN TO MENU --" ${KEYNAMES[@]} "test")
+        options=("-- RETURN TO MENU --" ${KEYNAMES[@]})
         num_options=${#options[@]}
 
         PS3=$'\nSelection: '
@@ -396,8 +396,8 @@ sleep 1
                     fi
     sleep 2
     echo -e "Writing keys to RO_VPD..."
-    vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_'$key'_serial_number")"
-    vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_'$key'_stable_device_secret")"
+    vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_${key}_serial_number")"
+    vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_${key}_stable_device_secret")"
     echo -e "Keys written to VPD!"
     sleep 4
     menu_reset
