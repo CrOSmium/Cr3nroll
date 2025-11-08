@@ -144,6 +144,10 @@ echo -e "It looks like you're booted in Sh1mmer (via Aurora), automatically back
 mkdir -p /tmp/aurora/vpd
 vpd -i RO_VPD -l > /tmp/aurora/vpd/RO.vpd
 vpd -i RW_VPD -l > /tmp/aurora/vpd/RW.vpd
+sleep 0.67
+echo -e "Backup complete! Returning to menu..."
+menu_reset
+full_menu
 else
 echo -e "Where would you like to backup your VPD to? (makes a new directory '/vpd/' underneath the selected one)"
 echo -ne "Directory: "
@@ -216,6 +220,12 @@ if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
     gensdev=$(openssl rand -hex 32)
     echo -e "Generated stable_device_secret: '$gensdev'"
     sleep 0.4
+    echo -e "Would you like to have your serial number auto-generated? (Y/N)"
+    read -r -n 1 -p "(y/n):" snauto
+    if [[ "${snauto}" == "y" ]]; then
+    KEYNAME="$(tr -dc 'A-Z' </dev/urandom | head -c2; tr -dc '0-9' </dev/urandom | head -c1; tr -dc 'A-Z' </dev/urandom | head -c3; tr -dc 'A-Z0-9' </dev/urandom | head -c3; echo)"
+    echo -e "Setting serial number to '$KEYNAME'"
+    else
     echo -e "What do you want your serial number to be?"
     currentsn=$(vpd -i RO_VPD -g "serial_number")
     echo -e "Your currently set one is: '$currentsn'"
@@ -239,6 +249,7 @@ if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
     echo -e "You want your new serial number to be '$KEYNAME'?"
     echo -ne "(Y/N): "
     read SCONFIRM
+    fi
     if [[ ${SCONFIRM,,} = "y" ]]; then
     echo -e "What would you like to name these keys? (NO SPACES)"
     SKNAME() {
