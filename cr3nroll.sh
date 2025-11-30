@@ -466,7 +466,7 @@ tput sc
 
 
 if [[ "$writeprotect" == *"disabled"* ]]; then
-  echo -e "You currently have Firware Write Protection set to ${R}(DISABLED)${N}, all features *should* work properly. Have fun :D"
+  echo -e "You currently have Firmware Write Protection set to ${R}(DISABLED)${N}, all features *should* work properly. Have fun :D"
   else
   echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to change your current enrollment info until you disable it!\n\n(This appears if your Write Protection is set to ${G}(ENABLED)${N}, regardless of the WP range)"
 fi
