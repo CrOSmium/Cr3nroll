@@ -31,9 +31,9 @@ options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Ge
 fi
 if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
 options=("Remove Quicksilver${N}")
+selected_index=0
 fi
 num_options=${#options[@]}
-
 }
 
 menu_reset
@@ -191,10 +191,31 @@ read -r -n 1 -p "Press Y to continue, or press any key to exit..." yesnts
 
 if [[ "$yesnts" == "y" ]]; then
 echo -e "\n\nSaving factory enrollment info to RO_VPD..."
+wrotekey=0
 sleep 0.67
+if [[ "$(vpd -i RO_VPD -g "factory_serial_number")" == "" ]]; then
 vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+echo -e "${G}Written!${N}"
+wrotekey=$(( $wrotekey + 1 ))
+else
+echo -e "Key (factory_serial_number) already saved, no need to write!"
+fi
 sleep 0.67
+if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
+if [[ "$wrotekey" == "1" ]]; then
 vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
+echo -e "${G}Written!${N}"
+wrotekey=$(( $wrotekey + 1 ))
+else
+echo -e "Backup incomplete! Please contact support in the discord, or fix it yourself by running these commands when your factory info is CONFIRMED active."
+echo -e "vpd -i RO_VPD -d "factory_stable_device_secret""
+echo -e "vpd -i RO_VPD -d "factory_serial_number""
+echo -e "vpd -i RW_VPD -d "factory_backup""
+echo -e "Running these WILL wipe your currently backed up factory info!"
+fi
+else
+echo -e "Key (factory_stable_device_secret) already saved, no need to write!"
+fi
 sleep 0.67
 vpd -i RW_VPD -s "factory_backup"="2"
 echo -e "Enrollment info backed up under 'factory_serial_number' and 'factory_stable_device_secret'!\nReturning to menu..."
