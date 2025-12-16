@@ -340,7 +340,7 @@ if [[ "${options[$selected_index]}" == "${R}Load saved Enrollment Keys${N}" ]]; 
                                                                                                                           ███ ░███         
                                                                                                                          ░░██████          
                                                                                                                           ░░░░░░           "
-    echo -e "| Cr3nroll By OSmium (crosmium on Github) |"
+    echo -e "| Cr3nroll By OSmium (CrOSmium on Github) |"
     echo ""
     echo ""
     echo -e "\nCurrently active serial number: '$(vpd -i RO_VPD -g "serial_number")'"
@@ -483,7 +483,7 @@ menu_logo() {
 ╚██████╗██║  ██║██████╔╝██║ ╚████║██║  ██║╚██████╔╝███████╗███████╗
  ╚═════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝
 "
-    echo -e "| By OSmium (crosmium on Github) |"
+    echo -e "| By OSmium (CrOSmium on Github) |"
     echo ""
 }
 display_menu() {
