@@ -316,7 +316,7 @@ if [[ "${options[$selected_index]}" == "${R}Load saved Enrollment Keys${N}" ]]; 
     echo -e "Getting keys..."
     sleep 2
     mapfile -t KEYNAMES < <(vpd -i RW_VPD -l | grep '"saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
-# mapfile -t KEYNAMES < <(echo -e "saved_test" "saved_test_serial" | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
+#   mapfile -t KEYNAMES < <(echo -e "saved_test" "saved_test_serial" | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
     clear
     echo -e " █████                              █████                                               █████                                              
 ░░███                              ░░███                                               ░░███                                               
@@ -347,11 +347,13 @@ if [[ "${options[$selected_index]}" == "${R}Load saved Enrollment Keys${N}" ]]; 
     echo ""
     
 sleep 1
-   #  if [[ ${#KEYNAMES[@]} -eq 0 ]]; then
-   #     echo -e "No Keys found!"
-   #     sleep 2
-   #     menu_reset
-   # else
+     if [[ ${#KEYNAMES[@]} -eq 0 ]]; then
+        echo -e "No Keys found!"
+        sleep 2
+        clear
+        menu_reset
+        full_menu
+    else
         options=("-- RETURN TO MENU --" ${KEYNAMES[@]})
         num_options=${#options[@]}
 
@@ -391,6 +393,7 @@ sleep 1
                     sleep 3.4
                      overrideSet() {
         clear
+    trap 'echo -e "\nWrite cancelled, no keys were written!" && sleep 2 && menu_reset && full_menu ' SIGINT
     echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE!!${N}"
     sleep 1.5
     clear
@@ -412,9 +415,11 @@ sleep 1
     sleep 0.8
             clear
             menu_logo
-    echo -e "Checking and backing up factory info..."
+    echo -e "Checking factory info..."
     sleep 1.7
     if [[ "$(vpd -i RW_VPD -g "factory_backup")" != "2" ]]; then
+    echo -e "Backing up factory info..."
+    sleep 1.7
     if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
                     vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
                     vpd -i RW_VPD -s "factory_backup"="$(($(vpd -i RW_VPD -g "factory_backup") + 1 ))"
@@ -441,7 +446,7 @@ sleep 1
                     ;;
             esac
         done
-    # fi   
+     fi   
 fi
 }
 full_menu() {
