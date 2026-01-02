@@ -1,16 +1,22 @@
 #!/bin/bash
 
-# CUSTOM FLAGS
+# -- CUSTOM FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
 BROKER_ENABLED="true" # enable or disable launching br0ker for supported versions
-# MAIN SCRIPT 
 
 
+# -- TESTING FLAGS :3 --
+# MILESTONE=143
+# BROKER_ENABLED="false" 
+# writeprotect=enabled
+
+# -- MAIN SCRIPT --
 tput civis
 
 selected_index=0
 writeprotect=$(flashrom --wp-status | grep disabled)
 factoryserial=$(vpd -i RO_VPD -g "factory_serial_number")
+MILESTONE=$(cat /etc/lsb-release | grep MILESTONE | sed 's/^.*=//' )
 if [[ "$factoryserial" == "" ]]; then
 factorysaved="1"
 fi
@@ -268,9 +274,7 @@ if [[ "${options[$selected_index]}" == "Deprovision/Unenroll" ]]; then
 menu_logo
 echo -e "Disable Enrollment (Deprovision/Unenroll)"
 echo -e "Getting version milestone..."
-MILESTONE=$(cat /etc/lsb-release | grep MILESTONE | sed 's/^.*=//' )
-# MILESTONE=120 # for testing
-# BROKER_ENABLED="false" # also for testing
+
 sleep 0.67
 if [[ "$MILESTONE" == "" ]]; then
 echo -e "${R}Could not get milestone version, is ChromeOS installed?${N}"
@@ -718,7 +722,16 @@ tput sc
 if [[ "$writeprotect" == *"disabled"* ]]; then
   echo -e "You currently have Firmware Write Protection set to ${R}(DISABLED)${N}, all features *should* work properly. Have fun :D"
   else
-  echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to change your current enrollment info until you disable it!\n\n(This appears if your Write Protection is set to ${G}(ENABLED)${N}, regardless of the WP range)"
+  echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to change your current enrollment info until you disable it!"
+fi
+if [[ "$MILESTONE" == "" ]]; then
+echo -e "${R}Could not get ChromeOS version milestone, is ChromeOS installed?${N}"
+else
+if [[ "$MILESTONE" -ge 143 ]]; then
+echo -e "(WARNING): you are currently on ChromeOS ${R}v$MILESTONE${N}, therefore your version ${R}does not have an available unenrollment${N}. Try downgrading if possible!"
+else
+echo -e "-- You are currently on ChromeOS ${G}v$MILESTONE${N} --"
+fi
 fi
 echo ""
 for i in "${!options[@]}"; do
