@@ -782,7 +782,7 @@ tput sc
 if [[ "$writeprotect" == *"disabled"* ]]; then
   echo -e "You currently have Firmware Write Protection set to ${R}(DISABLED)${N}, all features *should* work properly. Have fun :D"
   else
-  echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to change your current enrollment info until you disable it [${G}https://crosmium.dev/FWWP${N}]!"
+  echo -e "You currently have Firmware Write Protection set to ${G}(ENABLED)${N}, you will be ${R}unable${N} to modify your current enrollment info until you disable it [${G}https://crosmium.dev/FWWP${N}]!"
 fi
 if [[ "$MILESTONE" == "" ]]; then
 echo -e "${R}Could not get ChromeOS version milestone, is ChromeOS installed?${N}"
