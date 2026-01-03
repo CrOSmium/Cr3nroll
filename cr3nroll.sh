@@ -42,7 +42,7 @@ else
 options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Custom Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
 fi
 if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
-options=("Remove Quicksilver${N}")
+options=("Remove Quicksilver${N}" "Exit")
 selected_index=0
 fi
 num_options=${#options[@]}
