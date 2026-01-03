@@ -2,7 +2,8 @@
 Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
 
 A general enrollment utility for ChromeOS</br>
-I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br>
+I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br></br>
+*THIS IS A STANDALONE UTILITY, AND DOES NOT INCLUDE A SHIM*
 </br>
 </br>
 # How to implement into another project
