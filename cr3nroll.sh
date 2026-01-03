@@ -11,7 +11,7 @@ BROKER_ENABLED="true" # enable or disable launching br0ker for supported version
 selected_index=0
 writeprotect=$(flashrom --wp-status | grep disabled)
 factoryserial=$(vpd -i RO_VPD -g "factory_serial_number")
-MILESTONE=$(cat /etc/lsb-release | grep MILESTONE | sed 's/^.*=//' )
+# MILESTONE=$(cat /etc/lsb-release | grep MILESTONE | sed 's/^.*=//' ) # this was removed because it was getting the shims version lmao
 if [[ "$factoryserial" == "" ]]; then
 factorysaved="1"
 fi
@@ -49,6 +49,71 @@ num_options=${#options[@]}
 }
 
 menu_reset
+
+# STOLEN CODE FROM BR0KER TO GET MILESTONE :3
+get_largest_cros_blockdev() {
+	local largest size dev_name tmp_size remo
+	size=0
+	command -v sfdisk >/dev/null 2>&1 || return 0
+	for blockdev in /sys/block/*; do
+		dev_name="${blockdev##*/}"
+		echo "$dev_name" | grep -q '^\(loop\|ram\)' && continue
+		tmp_size=$(cat "$blockdev"/size)
+		remo=$(cat "$blockdev"/removable)
+		if [ "$tmp_size" -gt "$size" ] && [ "${remo:-0}" -eq 0 ]; then
+			case "$(sfdisk -d "/dev/$dev_name" 2>/dev/null)" in
+				*'name="STATE"'*'name="KERN-A"'*'name="ROOT-A"'*)
+					largest="/dev/$dev_name"
+					size="$tmp_size"
+					;;
+			esac
+		fi
+	done
+	echo "$largest"
+}
+format_part_number() {
+	echo -n "$1"
+	echo "$1" | grep -q '[0-9]$' && echo -n p
+	echo "$2"
+}
+get_fixed_dst_drive() {
+	local dev
+	if [ -z "${DEFAULT_ROOTDEV}" ]; then
+		for dev in /sys/block/sd* /sys/block/mmcblk*; do
+			if [ ! -d "${dev}" ] || [ "$(cat "${dev}/removable")" = 1 ] || [ "$(cat "${dev}/size")" -lt 2097152 ]; then
+				continue
+			fi
+			if [ -f "${dev}/device/type" ]; then
+				case "$(cat "${dev}/device/type")" in
+				SD*)
+					continue;
+					;;
+				esac
+			fi
+			DEFAULT_ROOTDEV="{$dev}"
+		done
+	fi
+	if [ -z "${DEFAULT_ROOTDEV}" ]; then
+		dev=""
+	else
+		dev="/dev/$(basename ${DEFAULT_ROOTDEV})"
+		if [ ! -b "${dev}" ]; then
+			dev=""
+		fi
+	fi
+	echo "${dev}"
+}
+CROS_DEV=$(get_largest_cros_blockdev)
+MNT=$(mktemp -d)
+for i in 3 5; do
+    mount -o ro "$(format_part_number "$CROS_DEV" "$i")" "$MNT" >/dev/null 2>&1 || continue
+    # end of stolen code!
+    NEW_MILESTONE=$(cat "$MNT/etc/lsb-release" | grep "CHROMEOS_RELEASE_CHROME_MILESTONE" | sed 's/^.*=//')
+    if [ ! -z "$NEW_MILESTONE" ]; then
+        MILESTONE=$NEW_MILESTONE
+    fi
+    umount "$MNT"
+done
 
 selector() {
 clear
