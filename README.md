@@ -13,7 +13,7 @@ get Cr3nroll</br>
 git clone https://github.com/crosmium/cr3nroll
 ```
 ## Step 2.
-Put cr3nroll into the project of your choice!
+Put Cr3nroll into the project of your choice!
 ## (optional) Step 3. [Setup Br0ker]
 Get the payload for br0ker and place it in the same directory as Cr3nroll
 ```
