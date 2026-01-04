@@ -445,6 +445,11 @@ vpd -i RW_VPD -l > $sdirec/vpd/RW.vpd
 echo -e "Backup Complete, Validating..."
 if [[ -f "$sdirec/vpd/RO.vpd" ]]; then
 echo -e "Validated!"
+sleep 0.67
+echo -e "Backup complete! Returning to menu..."
+sleep 2
+menu_reset
+full_menu
 else
 echo ""
 echo -e "Validation failed, check if you're in the correct environment, or if the directory is writeable."
