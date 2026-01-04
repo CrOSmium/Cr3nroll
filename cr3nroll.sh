@@ -206,7 +206,7 @@ fi
 if [[ "${options[$selected_index]}" == "${R}Import Enrollment Info${N}" ]]; then
 clear
 menu_logo
-echo -e "Import Custom Enrollment Info (from a file)"
+echo -e "Import Enrollment Info (from a file)"
 echo -e "${R}THIS WILL OVERWRITE YOUR ENTIRE VPD WITH THE CONTENTS OF THE FILES YOU PROVIDE!!${N}"
 echo ""
 echo -e "\n\nEnter directory to import from (must contain RO.vpd and RW.vpd):"
