@@ -442,12 +442,12 @@ sleep 0.67
 mkdir $sdirec/vpd
 vpd -i RO_VPD -l > $sdirec/vpd/RO.vpd
 vpd -i RW_VPD -l > $sdirec/vpd/RW.vpd
-echo -e "Backup Complete, Validating..."
+echo -e "Copy complete, Validating..."
 if [[ -f "$sdirec/vpd/RO.vpd" ]]; then
 echo -e "Validated!"
 sleep 0.67
 echo -e "Backup complete! Returning to menu..."
-sleep 2
+sleep 3.2
 menu_reset
 full_menu
 else
