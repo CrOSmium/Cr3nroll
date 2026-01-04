@@ -37,9 +37,9 @@ D='\033[1;90m'
 
 menu_reset() {
 if [[ "$factorysaved" == "1" ]]; then
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Custom Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
 else
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Custom Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
 fi
 if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
 options=("Remove Quicksilver${N}" "Exit")
@@ -203,7 +203,7 @@ echo -e "Erasing selected keys from RW_VPD..."
         done
      fi   
 fi
-if [[ "${options[$selected_index]}" == "${R}Import Custom Enrollment Info${N}" ]]; then
+if [[ "${options[$selected_index]}" == "${R}Import Enrollment Info${N}" ]]; then
 clear
 menu_logo
 echo -e "Import Custom Enrollment Info (from a file)"
@@ -215,7 +215,7 @@ read impdirec
 sleep 0.67
 if [[ -d "$impdirec" ]]; then
 if [[ -f "$impdirec/RO.vpd" ]] && [[ -f "$impdirec/RW.vpd" ]]; then
-echo -e "Importing VPD from '$impdirec/RO.vpd' and '$impdirec/RW.vpd'..."
+echo -e "Importing VPD from '$impdirec/RO.vpd' and '$impdirec/RW.vpd'... ${R}[THIS MAY TAKE A WHILE]${N}"
 
 sudo vpd -i RW_VPD -l > RW_backup.txt # this is to make sure you can recover if my sh1tty script fucks up
 sudo vpd -i RO_VPD -l > RO_backup.txt
@@ -223,14 +223,16 @@ sleep 1
 echo -e "Importing RW_VPD..."
 sudo vpd -i RW_VPD -O
 while IFS= read -r line; do
-    sudo vpd -i RW_VPD -s "$line"
+    clean_line=$(echo "$line" | tr -d '"')
+    sudo vpd -i RW_VPD -s "$clean_line"
 done < "$impdirec/RW.vpd"
 echo -e "Imported RW_VPD!"
-sleep 3
+sleep 1.6
 echo -e "Importing RO_VPD..."
 sudo vpd -i RO_VPD -O
 while IFS= read -r line; do
-    sudo vpd -i RO_VPD -s "$line"
+    clean_line=$(echo "$line" | tr -d '"')
+    sudo vpd -i RO_VPD -s "$clean_line"
 done < "$impdirec/RO.vpd"
 menu_reset
 full_menu
