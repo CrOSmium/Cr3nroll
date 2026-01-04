@@ -37,9 +37,9 @@ D='\033[1;90m'
 
 menu_reset() {
 if [[ "$factorysaved" == "1" ]]; then
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
 else
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
 fi
 if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
 options=("Remove Quicksilver${N}" "Exit")
@@ -244,7 +244,7 @@ full_menu
 fi
 fi
 fi
-if [[ "${options[$selected_index]}" == "${R}Restore Enrollment Info${N}" ]]; then
+if [[ "${options[$selected_index]}" == "${R}Restore Factory Enrollment Info${N}" ]]; then
 echo -e "Are you sure you want to restore saved enrollment keys from factory? This will overwrite your currently active keys."
 echo -ne "(Y/N): "
 read YESNT3
