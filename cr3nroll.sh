@@ -103,17 +103,29 @@ get_fixed_dst_drive() {
 	fi
 	echo "${dev}"
 }
+# some murkmod-esque code to get the higher priority root (which is the higher version in almost all cases)
+get_booted_kernnum() {
+    if $(expr $(cgpt show -n "$intdis" -i 2 -P) > $(cgpt show -n "$intdis" -i 4 -P)); then
+        echo -n 2
+    else
+        echo -n 4
+    fi
+}
+get_booted_rootnum() { 
+  expr $(get_booted_kernnum) + 1
+}
+
 CROS_DEV=$(get_largest_cros_blockdev)
 MNT=$(mktemp -d)
-for i in 3 5; do
-    mount -o ro "$(format_part_number "$CROS_DEV" "$i")" "$MNT" >/dev/null 2>&1 || continue
-    # end of stolen code!
-    NEW_MILESTONE=$(cat "$MNT/etc/lsb-release" | grep "CHROMEOS_RELEASE_CHROME_MILESTONE" | sed 's/^.*=//')
-    if [ ! -z "$NEW_MILESTONE" ]; then
-        MILESTONE=$NEW_MILESTONE
-    fi
-    umount "$MNT"
-done
+mount -o ro "$(format_part_number "$CROS_DEV" "$(get_booted_rootnum)")" "$MNT" >/dev/null 2>$1 || continue # end of stolen code!
+# we want to specifically check the higher priority (thus, higher version) root to ensure that the milestone isn't incorrectly reported 
+# as a compatible version if someone has updated from root-b to root-a.
+NEW_MILESTONE=$(cat "$MNT/etc/lsb-release" | grep "CHROMEOS_RELEASE_CHROME_MILESTONE" | sed 's/^.*=//') 
+if [ ! -z "$NEW_MILESTONE" ]; then
+    MILESTONE=$NEW_MILESTONE
+fi
+umount "$MNT"
+
 
 selector() {
 clear
