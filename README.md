@@ -1,9 +1,9 @@
 # Cr3nroll
-Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
+## VISIT https://github.com/DMDCR/cr3nroll-shim FOR AN ACTUAL SHIM! THIS IS JUST THE SCRIPT!!</br></br>
 
+Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
 A general enrollment utility for ChromeOS</br>
 I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br></br>
-*THIS IS A STANDALONE UTILITY, AND DOES NOT INCLUDE A SHIM*
 ![an image of cr3nroll](readme-assets/image1.jpeg)
 *an image of Cr3nroll running on R143 [within a MacOS terminal via flags]*
 </br></br></br>
