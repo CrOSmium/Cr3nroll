@@ -1,4 +1,6 @@
 #!/bin/bash
+# This is a special version of cr3nroll designed to replace sh1mmer_main.sh inside of sh1mmer. (sh1mmer_legacy/root/noarch/usr/sbin/sh1mmer_main.sh)
+# The primary difference is the option to select bash :P
 
 # -- CUSTOM FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
@@ -37,9 +39,9 @@ D='\033[1;90m'
 
 menu_reset() {
 if [[ "$factorysaved" == "1" ]]; then
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Bash" "Exit")
 else
-options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Bash" "Exit")
 fi
 if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
 options=("Remove Quicksilver${N}" "Exit")
@@ -49,6 +51,20 @@ num_options=${#options[@]}
 }
 
 menu_reset
+# Stolen Sh1mmer code
+run_task() {
+	if "$@"; then
+		echo "Done."
+	else
+		echo "TASK FAILED."
+	fi
+	echo "Press enter to return to the main menu."
+	read -res
+	menu_reset
+	full_menu
+}
+# end of theft
+
 
 # STOLEN CODE FROM BR0KER TO GET MILESTONE :3
 get_largest_cros_blockdev() {
@@ -203,6 +219,14 @@ echo -e "Erasing selected keys from RW_VPD..."
         done
      fi   
 fi
+
+# SHIM UNIQUE OPTION!!
+if [[ "${options[$selected_index]}" == "Bash" ]]; then
+clear
+menu_logo
+run_task bash
+fi
+
 if [[ "${options[$selected_index]}" == "${R}Import Enrollment Info${N}" ]]; then
 clear
 menu_logo
@@ -272,10 +296,11 @@ menu_reset
 full_menu
 fi
 if [[ "${options[$selected_index]}" == "Exit" ]]; then
-    echo "Exiting."
+    echo "Exiting & Rebooting"
     sleep 0.5
     clear
     tput cnorm
+	reboot
     exit 0
 fi
 if [[ "${options[$selected_index]}" == "Save Current Enrollment Keys" ]]; then
