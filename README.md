@@ -8,7 +8,7 @@ I'm going to actively maintain this with the latest public unenrollment too, and
 *an image of Cr3nroll running on R143 [within a MacOS terminal via flags]*
 </br></br></br>
 ![an image of cr3nroll running within sh1mmer](readme-assets/image2.jpg)
-*an image of Cr3nroll running within SH1MMER on a chromebook*
+*an image of Cr3nroll running within SH1MMER on a chromebook* [the new [shim](https://DMDCR/cr3nroll-shim) has an option to use bash!]
 </br>
 </br>
 # How to implement into another project :D
