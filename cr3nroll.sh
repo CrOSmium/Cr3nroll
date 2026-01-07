@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# SCRIPT VERSION: v1.0.0
+
 # -- CUSTOM FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
 BROKER_ENABLED="false" # enable or disable launching br0ker for supported versions
