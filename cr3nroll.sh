@@ -17,7 +17,7 @@ fi
 # -----------------------
 
 # -- TESTING FLAGS :3 --
-# MILESTONE=143
+# FLAG_MILESTONE=143
 # BROKER_ENABLED="false"
 # writeprotect=enabled
 
@@ -111,7 +111,9 @@ for i in 3 5; do
     fi
     umount "$MNT"
 done
-
+if [[ "$FLAG_MILESTONE" != "" ]]; then
+    MILESTONE=$FLAG_MILESTONE
+fi
 selector() {
     clear
     if [[ "${options[$selected_index]}" == "Edit Enrollment list${N}" ]]; then
@@ -357,7 +359,7 @@ selector() {
             menu_reset
             full_menu
         else
-            if [[ "$MILESTONE" -ge 143 ]]; then
+            if [[ "$MILESTONE" -ge 148 ]]; then
                 echo -e "\n${R}Sorry, no unenrollment found for your version (yet), try downgrading if you can!${N}"
                 sleep 0.67
                 echo -e "Returning to menu..."
@@ -394,7 +396,7 @@ selector() {
                         fi
                     fi
                 else
-                    if [[ "$MILESTONE" -ge 133 ]]; then
+                    if [[ "$MILESTONE" -ge 133 && "$MILESTONE" -le 142 ]]; then
                         echo -e "\nYour version supports ${G}Quicksilver${N}!"
                         echo ""
                         echo -e "\n${R}Warning: This will prevent editing enrollment configs and enrolling until Quicksilver is removed.) [ONLY WORKS BELOW R143]\n${N}"
@@ -411,6 +413,13 @@ selector() {
                         sleep 2
                         menu_reset
                         full_menu
+                    else
+                        if [[ "$MILESTONE" -ge 143 ]]; then
+                            echo -e "\n${R}Sorry, your version supports ${B}reqwrite${N}, but it has not released yet.${N}"
+                            sleep 0.67
+                            echo -e "Returning to menu..."
+                            sleep 3.5
+                        fi
                     fi
                 fi
             fi
