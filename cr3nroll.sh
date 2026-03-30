@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# SCRIPT VERSION: v1.0.1
+# SCRIPT VERSION: v1.1.0
 
 # -- CUSTOM FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
 BROKER_ENABLED="false"  # enable or disable launching br0ker for supported versions
+INSIDE_SHIM="false" # set to 'true' if you want bash as an option and reboot on exit
 
 # -- { DO NOT MODIFY } --
 selected_index=0
@@ -34,9 +35,17 @@ D='\033[1;90m'
 
 menu_reset() {
     if [[ "$factorysaved" == "1" ]]; then
-        options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
+        if [[ "$INSIDE_SHIM" == "true" ]]; then
+            options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Bash" "Exit")
+        else
+            options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "${G}Backup Factory Enrollment Info (Recommended)${N}" "Deprovision/Unenroll" "Exit")
+        fi
     else
-        options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+        if [[ "$INSIDE_SHIM" == "true" ]]; then
+            options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Bash" "Exit")
+        else
+            opptions=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+        fi
     fi
     if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
         options=("Remove Quicksilver${N}" "Exit")
@@ -47,7 +56,21 @@ menu_reset() {
 
 menu_reset
 
-# STOLEN CODE FROM BR0KER TO GET MILESTONE :3
+# stolen sh1mmer code
+
+run_task() {
+    if "$@"; then
+        echo "Done."
+    else
+        echo "TASK FAILED."
+    fi
+    echo "Press enter to return to the main menu."
+    read -res
+    menu_reset
+    full_menu
+}
+
+# br0ker milestone getter
 get_largest_cros_blockdev() {
     local largest size dev_name tmp_size remo
     size=0
@@ -271,11 +294,20 @@ selector() {
         full_menu
     fi
     if [[ "${options[$selected_index]}" == "Exit" ]]; then
-        echo "Exiting."
-        sleep 0.5
-        clear
-        tput cnorm
-        exit 0
+        if [[ "$INSIDE_SHIM" == "true" ]]; then
+            echo "Exiting & Rebooting"
+            sleep 0.5
+            clear
+            tput cnorm
+            reboot
+            exit 0
+        else
+            echo "Exiting."
+            sleep 0.5
+            clear
+            tput cnorm
+            exit 0
+        fi
     fi
     if [[ "${options[$selected_index]}" == "Save Current Enrollment Keys" ]]; then
         menu_logo
@@ -524,6 +556,17 @@ selector() {
             full_menu
         fi
     fi
+
+
+    # SHIM UNIQUE OPTION!!
+    if [[ "${options[$selected_index]}" == "Bash" ]]; then
+        clear
+        menu_logo
+        tput cnorm
+        run_task bash
+    fi
+
+    
     if [[ "${options[$selected_index]}" == "Generate new Enrollment Keys" ]]; then
         menu_logo
         echo -e "Would you like to generate and save new Enrollment Keys? (Does not override currently selected keys)"
