@@ -3,7 +3,7 @@ Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
 
 A general enrollment utility for ChromeOS</br>
 I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br></br>
-*IF YOU WANT TO USE THIS AS A SHIM, USE [Cr3nroll-shim](https://github.com/CrOSmium/cr3nroll-shim)*
+### *IF YOU WANT TO USE THIS IN A SHIM, USE [Cr3nroll-shim](https://github.com/CrOSmium/cr3nroll-shim)*
 ![an image of cr3nroll](readme-assets/image1.jpeg)
 *an image of Cr3nroll running on R143 [within a MacOS terminal via flags]*
 </br></br></br>
@@ -20,6 +20,14 @@ git clone https://github.com/crosmium/cr3nroll
 ```
 ## Step 2.
 Put Cr3nroll into the project of your choice!
+
+-----
+* if you are putting Cr3nroll in a dedicated shim, or code execution with bash (which it requires anyways), set this flag in `cr3nroll.sh` to `true` to enable the bash option and reboot on exit:
+```
+INSIDE_SHIM="true" # set to 'true' if you want bash as an option and reboot on exit
+```
+-----
+
 ## (optional) Step 3. [Setup Br0ker]
 Get the payload for br0ker and place it in the same directory as Cr3nroll
 ```
