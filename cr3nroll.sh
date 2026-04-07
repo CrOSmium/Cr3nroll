@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SCRIPT VERSION: v1.1.0
+# SCRIPT VERSION: v1.1.1
 
 # -- CUSTOM FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
