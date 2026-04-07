@@ -6,6 +6,7 @@
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
 BROKER_ENABLED="false"  # enable or disable launching br0ker for supported versions
 INSIDE_SHIM="false" # set to 'true' if you want bash as an option and reboot on exit
+PAYLOAD_MODE="false" # set to 'true' if you do not want deprovision/unenroll as an option, this only works if INSIDE_SHIM="false"
 
 # -- { DO NOT MODIFY } --
 selected_index=0
@@ -44,8 +45,12 @@ menu_reset() {
         if [[ "$INSIDE_SHIM" == "true" ]]; then
             options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Bash" "Exit")
         else
-            opptions=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
-        fi
+            if [[ "$PAYLOAD_MODE" == "true" ]]; then
+                options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Exit")
+            else
+                options=("Save Current Enrollment Keys" "${R}Load saved Enrollment Keys${N}" "Generate new Enrollment Keys" "${R}Import Enrollment Info${N}" "Edit Enrollment list${N}" "${B}Backup Enrollment Info${N}" "${R}Restore Factory Enrollment Info${N}" "Deprovision/Unenroll" "Exit")
+            fi
+        fi    
     fi
     if [[ "$(vpd -i RW_VPD -g "re_enrollment_key")" != "" ]]; then
         options=("Remove Quicksilver${N}" "Exit")
