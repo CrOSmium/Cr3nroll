@@ -11,11 +11,23 @@ I'm going to actively maintain this with the latest public unenrollment too, and
 *an image of Cr3nroll (v1.0.0) running within SH1MMER on a chromebook*
 </br>
 </br>
+
+# Usage
+## Cr3nroll in VT-2
+- (requires internet access)
+```bash
+bash <(curl -SLk https://crosmium.dev/cr3nroll.sh)
+```
+## Cr3nroll in Modmium
+[-- unreleased --]
+
+--------
+
 # How to implement into another project :D
 This is instructions on how to put Cr3nroll into something like Sh1mmer, and still keep Br0ker working!
 ## Step 1.
 get Cr3nroll</br>
-```
+```bash
 git clone https://github.com/crosmium/cr3nroll
 ```
 ## Step 2.
@@ -23,28 +35,28 @@ Put Cr3nroll into the project of your choice!
 
 -----
 * if you are putting Cr3nroll in a dedicated shim, or code execution with bash (which it requires anyways), set this flag in `cr3nroll.sh` to `true` to enable the bash option and reboot on exit:
-```
+```bash
 INSIDE_SHIM="true" # set to 'true' if you want bash/regular sh1mmer options and reboot on exit
 ```
 * If it's a payload, use this instead
-```
+```bash
 PAYLOAD_MODE="true" # set to 'true' if you do not want deprovision/unenroll as an option
 ```
 -----
 
 ## (optional) Step 3. [Setup Br0ker]
 Get the payload for br0ker and place it in the same directory as Cr3nroll
-```
+```bash
 wget https://cdn.crosbreaker.dev/br0ker.sh
 ```
 Using Sh1mmer or some other payloads folder and can't place it in there alongside Cr3nroll?</br>Just edit the flags at the top of `cr3nroll.sh` to be:
-```
+```bash
 # -- FLAGS --
 BROKER_PATH="broker.sh" # Put the exact path to your br0ker.sh in the quotes
 ```
 ## (optional) Step 4. [Enable Br0ker!]
 Open `cr3nroll.sh` in the text editor of your choice and set this flag to true like this
-```
+```bash
 BROKER_ENABLED="true"
 ```
 ----------
