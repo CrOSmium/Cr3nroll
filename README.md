@@ -4,6 +4,7 @@ Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
 A general enrollment utility for ChromeOS</br>
 I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br></br>
 ### *IF YOU WANT TO USE THIS IN A SHIM, USE [Cr3nroll-shim](https://github.com/CrOSmium/cr3nroll-shim)*
+
 ![an image of cr3nroll](readme-assets/crostini-example.png)
 *an image of Cr3nroll (shim-v2.0.0) running __within crostini__*
 </br></br></br>
@@ -11,6 +12,12 @@ I'm going to actively maintain this with the latest public unenrollment too, and
 *an image of Cr3nroll (v1.0.0) running within SH1MMER on a chromebook*
 </br>
 </br>
+
+## How to use in VT2 (or a shell with internet access)
+```
+bash <(curl -SLk https://raw.githubusercontent.com/crosmium/cr3nroll/main/cr3nroll.sh)
+```
+
 # How to implement into another project :D
 This is instructions on how to put Cr3nroll into something like Sh1mmer, and still keep Br0ker working!
 ## Step 1.
