@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="2.0.0"
+VERSION="2.0.0(a)"
 
 # -- FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
@@ -361,11 +361,9 @@ loadsavedkeys() {
 	#   mapfile -t KEYNAMES < <(echo -e "saved_test" "saved_test_serial" | grep '^saved_' | awk -F'[ =]' '{print $1}' | awk -F_ '{print $2}' | sort -u)
 	clear
 	menu_logo
-	echo ""
+	echo -e "-- Load saved enrollment keys --"
 	echo -e "\nCurrently active serial number: '$(vpd -i RO_VPD -g "serial_number")'"
 	echo ""
-
-	sleep 0.3
 	if [[ ${#KEYNAMES[@]} -eq 0 ]]; then
 		echo -e "No Keys found!"
 		sleep 2
@@ -375,7 +373,7 @@ loadsavedkeys() {
 	else
 		options=("-- RETURN TO MENU --" ${KEYNAMES[@]})
 		num_options=${#options[@]}
-
+	
 		PS3=$'\nSelection: '
 		select key in "${options[@]}"; do
 			case "$key" in
@@ -396,7 +394,7 @@ loadsavedkeys() {
 				fi
 				clear
 				menu_logo
-
+	
 				if [[ "$(vpd -i RO_VPD -g "factory_stable_device_secret")" == "" ]]; then
 					vpd -i RO_VPD -s "factory_stable_device_secret"="$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")"
 					echo -e "if you see this that means that you don't have your factory SDS (stable_device_secret) backed up, It will be backed up in the next step."
@@ -409,7 +407,7 @@ loadsavedkeys() {
 				else
 					echo -e "Found valid factory entry (SN)!"
 				fi
-				sleep 1.2
+				sleep 1.5
 				overrideSet() {
 					clear
 					trap 'echo -e "\nWrite cancelled, no keys were written!" && sleep 2 && menu_reset && full_menu ' SIGINT
@@ -428,7 +426,7 @@ loadsavedkeys() {
 					echo -e "Writing in: 1"
 					sleep 2
 					clear
-
+	
 					echo -e "Writing selected keys to RO_VPD in 3 seconds, press CTRL-C to cancel if you change your mind. ${R}THIS IS HIGHLY DESTRUCTIVE${N}"
 					echo -e "${R}Writing keys...${N}"
 					sleep 0.8
@@ -445,26 +443,26 @@ loadsavedkeys() {
 							echo -e "Wrote factory info! (SDS)"
 						fi
 						if [[ "$(vpd -i RO_VPD -g "factory_serial_number")" == "" ]]; then
-						vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
-						vpd -i RW_VPD -s "factory_backup"="$(($(vpd -i RW_VPD -g "factory_backup") + 1))"
-						echo -e "Wrote factory info! (SN)"
+							vpd -i RO_VPD -s "factory_serial_number"="$(vpd -i RO_VPD -g "serial_number")"
+							vpd -i RW_VPD -s "factory_backup"="$(($(vpd -i RW_VPD -g "factory_backup") + 1))"
+							echo -e "Wrote factory info! (SN)"
 						fi
 					fi
-					sleep 1
 					echo -e "Writing keys to RO_VPD..."
 					vpd -i RO_VPD -s "serial_number"="$(vpd -i RW_VPD -g "saved_${key}_serial_number")"
 					vpd -i RO_VPD -s "stable_device_secret_DO_NOT_SHARE"="$(vpd -i RW_VPD -g "saved_${key}_stable_device_secret")"
 					echo -e "Keys written to VPD!"
-					sleep 2.34
+					sleep 1.5
 					menu_reset
 					full_menu
 				}
 				overrideSet
 				menu_reset
 				full_menu
-			;;
-		esac
-	done
+				;;
+			esac
+		done
+	fi
 }
 
 importkeys() { 
@@ -667,7 +665,7 @@ firstfactorybackup() {
 	menu_logo
 	echo -e "Backup Factory Enrollment Info"
 	echo ""
-	echo -e "${R}This is irreversible!!${N}\n\n${G}This will save these two keys: 'factory_serial_number' as '$(vpd -i RO_VPD -g "serial_number")' and 'factory_stable_device_secret' as '$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")'${N}"
+	echo -e "${R}This is irreversible${N}\n\n${G}This will save these two keys: 'factory_serial_number' as '$(vpd -i RO_VPD -g "serial_number")' and 'factory_stable_device_secret' as '$(vpd -i RO_VPD -g "stable_device_secret_DO_NOT_SHARE")'${N}"
 
 	read -r -n 1 -p "Press Y to continue, or press any key to exit..." yesnts
 
