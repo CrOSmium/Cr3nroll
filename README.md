@@ -4,11 +4,11 @@ Pronounciation: *(Cr-3-enroll)*, or *(Cr-enroll)* [ you pick! ]</br></br>
 A general enrollment utility for ChromeOS</br>
 I'm going to actively maintain this with the latest public unenrollment too, and be adding more features whenever I can.</br></br>
 ### *IF YOU WANT TO USE THIS IN A SHIM, USE [Cr3nroll-shim](https://github.com/CrOSmium/cr3nroll-shim)*
-![an image of cr3nroll](readme-assets/image1.jpeg)
-*an image of Cr3nroll running on R143 [within a MacOS terminal via flags]*
+![an image of cr3nroll](readme-assets/crostini-example.png)
+*an image of Cr3nroll (shim-v2.0.0) running __within crostini__*
 </br></br></br>
 ![an image of cr3nroll running within sh1mmer](readme-assets/image2.jpg)
-*an image of Cr3nroll running within SH1MMER on a chromebook* [the new [shim](https://github.com/CrOSmium/cr3nroll-shim) has an option to use bash!]
+*an image of Cr3nroll (v1.0.0) running within SH1MMER on a chromebook*
 </br>
 </br>
 # How to implement into another project :D
@@ -24,7 +24,11 @@ Put Cr3nroll into the project of your choice!
 -----
 * if you are putting Cr3nroll in a dedicated shim, or code execution with bash (which it requires anyways), set this flag in `cr3nroll.sh` to `true` to enable the bash option and reboot on exit:
 ```
-INSIDE_SHIM="true" # set to 'true' if you want bash as an option and reboot on exit
+INSIDE_SHIM="true" # set to 'true' if you want bash/regular sh1mmer options and reboot on exit
+```
+* If it's a payload, use this instead
+```
+PAYLOAD_MODE="true" # set to 'true' if you do not want deprovision/unenroll as an option
 ```
 -----
 
@@ -35,7 +39,7 @@ wget https://cdn.crosbreaker.dev/br0ker.sh
 ```
 Using Sh1mmer or some other payloads folder and can't place it in there alongside Cr3nroll?</br>Just edit the flags at the top of `cr3nroll.sh` to be:
 ```
-# -- CUSTOM FLAGS --
+# -- FLAGS --
 BROKER_PATH="broker.sh" # Put the exact path to your br0ker.sh in the quotes
 ```
 ## (optional) Step 4. [Enable Br0ker!]
