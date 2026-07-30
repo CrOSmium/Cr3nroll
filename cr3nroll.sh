@@ -3,7 +3,7 @@
 VERSION="2.0.1"
 
 # -- FLAGS --
-BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
+BROKER_PATH="payloads/broker.sh" # if you put broker in another spot, put the path here :3
 BROKER_ENABLED="false"  # enable or disable launching br0ker for supported versions
 INSIDE_SHIM="false" # set to 'true' if you want bash and other sh1mmer like features as options
 REBOOT_ON_EXIT="false" # setting this to 'true' enables reboot on exit
