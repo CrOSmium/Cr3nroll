@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="2.0.1"
+VERSION="2.1.0"
 
 # -- FLAGS --
 BROKER_PATH="broker.sh" # if you put broker in another spot, put the path here :3
@@ -8,6 +8,7 @@ BROKER_ENABLED="false"  # enable or disable launching br0ker for supported versi
 INSIDE_SHIM="false" # set to 'true' if you want bash and other sh1mmer like features as options
 REBOOT_ON_EXIT="false" # setting this to 'true' enables reboot on exit
 PAYLOAD_MODE="false" # set to 'true' if you do not want deprovision/unenroll as an option
+MODMIUM="false" # display features for fixing issues with modmium
 # -----------
 
 
@@ -128,8 +129,12 @@ full_menu() {
             	fi
         	done
     	elif [[ "$key" == "" ]]; then
-        	selector
-        	break
+        	if [[ "$modmium_menu" == "1" ]]; then 
+			    modsel
+			else
+			    selector
+        	fi
+			break
     	fi
     	tput rc
 	done
@@ -894,6 +899,125 @@ wipestate() {
 	fi
 }
 
+managemodmiumf() {
+	clear
+	options=(
+        "1) Clear FWMP"
+		"2) Remove RootFS Verification"
+		"3) Toggle Boot Priority"
+    )
+    options+=("0) Return")
+	modmium_menu=1
+	num_options=${#options[@]}
+	selected_index=1
+	menu_logo
+	full_menu
+	tput cnorm
+	selector
+}
+managemodmium() {
+	employ managemodmiumf
+	menu_reset
+	full_menu
+}
+
+removeverityf() {
+	echo -e "Are you sure you want to disable RootFS verification?"
+	read -rp "(y/N):" verity
+	if [[ "$verity" == [Yy]* ]]; then
+		echo -e "Removing RootFS verification..."
+		local big="$(get_largest_cros_blockdev)"
+		/usr/share/vboot/bin/make_dev_ssd.sh -i "$big" --remove_rootfs_verification
+		echo -e "Done! Returning to menu..."
+		sleep 1.67
+		return
+	else
+		echo -e "Denied! Returning to menu..."
+		sleep 1.67
+		return
+	fi
+}
+removeverity() {
+	employ removeverityf
+    managemodmiumf
+}
+
+togglebootpriorityf(){
+  clear
+  mkdir -p /tmp/install_marker
+  intdis_prefix="$(get_largest_cros_blockdev)p"
+  intdis=$(get_largest_cros_blockdev)
+  mount ${intdis_prefix}12 /tmp/install_marker
+  if [[ ! -f /tmp/install_marker/.install_complete ]]; then
+    umount /tmp/install_marker
+    rmdir /tmp/install_marker
+    echo -e "${R}ChromeOS update has not completed yet.${N}"
+    sleep 3
+    return
+  fi
+  umount /tmp/install_marker
+  rmdir /tmp/install_marker
+  if (( $(cgpt show -n "$intdis" -i 2 -P) > $(cgpt show -n "$intdis" -i 4 -P) )); then
+    currentKern=2
+    newKern=4
+  else
+    currentKern=4
+    newKern=2
+  fi
+  stty echo
+  echo -e "Are you sure you want to switch your boot kernel to '${intdis_prefix}${newKern}'?"
+  echo -ne "[y/N]: "
+  read -r iamverysure
+  if [[ "$iamverysure" =~ ^[Yy]$ ]]; then
+    echo -e "Continuing... \n"
+    sleep 0.3
+  else
+    sync # for good luck
+    echo -e "Denied! Returning to menu..."
+    sleep 0.2
+    return
+  fi
+  echo -e "Switching active kernel..."
+  cgpt add $intdis -i $currentKern -P 1 -S 1 -T 0
+  cgpt add $intdis -i $newKern -P 15 -S 0 -T 15
+  echo -e "${G}Done! Switched to kernel on ${intdis_prefix}${newKern}${N}"
+  sync;sync;sync
+  sleep 3
+}
+togglebootpriority() {
+	employ togglebootpriorityf
+	managemodmiumf
+}
+
+clearfwmpf() {
+	echo "${Y}Clearing FWMP...${N}"
+    # this is completely skidded from Sh1mmer :sob:
+	local res
+	vpd -i RW_VPD -s block_devmode=0
+	crossystem block_devmode=0
+	if [ -e /etc/init/tcsd.conf ]; then
+		initctl stop tcsd || :
+		if tpmc getp 0x100a >/dev/null 2>&1; then
+			tpmc clear
+			tpmc def 0x100a 0x28 0x12000
+			tpmc write 0x100a 76 28 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+		fi
+	else
+		res=$(cryptohome --action=get_firmware_management_parameters 2>&1)
+		if [ $? -eq 0 ] && ! echo "$res" | grep -q "Unknown action"; then
+			tpm_manager_client take_ownership
+			cryptohome --action=remove_firmware_management_parameters
+			cryptohome --action=set_firmware_management_parameters --flags=0 # this unbreaks modmium reco images
+		fi
+	fi
+	sleep 2
+	echo -e "Done!!"
+}
+clearfwmp() {
+	employ clearfwmpf
+    managemodmiumf
+}
+
 # -- MAIN SCRIPT --
 tput civis # :whale:
 
@@ -912,13 +1036,38 @@ menu_reset() {
     [[ "$PAYLOAD_MODE" != "true" ]] && [[ $quicksilver != 1 ]] && options+=("D) Deprovision/Unenroll")
 	[[ $quicksilver == 1 ]] && options+=("R) Remove Quicksilver")
     [[ "$INSIDE_SHIM" == "true" ]]   && options+=("T) Touch .developer_mode" "W) ${Y}WIPE STATEFUL${N}" "U) Unblock devmode" "B) Bash")
+	[[ "$MODMIUM" == "true" && "$(crossystem recoverysw_cur)" != "1" ]] && options+=("M) Manage Modmium")
     options+=("H) Help" "0) Exit")
+	modmium_menu=0
     num_options=${#options[@]}
 }
 
 
 milestone
 menu_reset
+
+modsel() {
+    local input="${1:-${options[$selected_index]}}"
+    local clean_input=$(echo "$input" | sed 's/\x1b\[[0-9;]*m//g')
+
+    case "$clean_input" in
+        1*)
+			fixinput
+			clearfwmp ;;
+		2*)
+			fixinput
+			removeverity ;;
+		3*)
+			fixinput
+			togglebootpriority ;;
+        0*)
+            fixinput
+			exit 0
+			;;
+        *)
+            return ;;
+    esac
+}
 
 selector() {
     local input="${1:-${options[$selected_index]}}"
@@ -969,6 +1118,9 @@ selector() {
 		[Uu]*)
 			fixinput
 			unblockdev ;;
+		[Mm]*)
+			fixinput
+			managemodmium ;;
         0*)
             fixinput
 			if [[ "$REBOOT_ON_EXIT" == "true" ]]; then
