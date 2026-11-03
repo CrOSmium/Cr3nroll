@@ -196,7 +196,7 @@ display_menu() {
 	        echo -e "${R}Could not get ChromeOS milestone, is ChromeOS installed?${N}"
 	        ;;
 	    *)
-	        if [[ "$MILESTONE" -ge 143 ]]; then
+	        if [[ "$MILESTONE" -ge 153 ]]; then
 	            echo -e "(WARNING): you are currently on ChromeOS ${R}v$MILESTONE${N}, therefore your version ${R}does not have an available unenrollment${N}. Try downgrading if possible!"
 	        else
 	            echo -e "-- You are currently on ChromeOS ${G}v$MILESTONE${N} --"
@@ -746,7 +746,7 @@ deprovision() {
 		menu_reset
 		full_menu
 	else
-		if [[ "$MILESTONE" -ge 148 ]]; then
+		if [[ "$MILESTONE" -ge 153 ]]; then
 			echo -e "\n${R}Sorry, no unenrollment found for your version (yet), try downgrading if you can!${N}"
 			sleep 0.67
 			echo -e "Returning to menu..."
@@ -802,7 +802,7 @@ deprovision() {
 					full_menu
 				else
 					if [[ "$MILESTONE" -ge 143 ]]; then
-						echo -e "\n${R}Sorry, your version supports ${B}reqwrite${N}, but it has not released yet.${N}"
+						echo -e "\n${N}Your version supports ${G}Emudhroll${N}, but it must be done within ChromeOS."
 						sleep 0.67
 						echo -e "Returning to menu..."
 						sleep 3.5
